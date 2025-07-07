@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sistema Solar 3D - Exploración Interactiva</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="style.css" rel="stylesheet"/>
+  
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Rajdhani', sans-serif;
+      background: #000;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    #solarSystem {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .ui-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .ui-overlay > * {
+      pointer-events: auto;
+    }
+
+    .header {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #00d4ff, #ff6b35, #f7931e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 25px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(45deg, #00d4ff, #ff6b35);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .info-panel {
+      position: fixed;
+      top: 50%;
+      right: 30px;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 25px;
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 350px;
+      z-index: 15;
+    }
+
+    .planet-info {
+      display: none;
+    }
+
+    .planet-info.active {
+      display: block;
+    }
+
+    .planet-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #00d4ff;
+    }
+
+    .planet-details {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #ccc;
+    }
+
+    .planet-details strong {
+      color: #fff;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      z-index: 15;
+    }
+
+    .control-btn {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .speed-control {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 15;
+    }
+
+    .speed-control label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #00d4ff;
+    }
+
+    .speed-slider {
+      width: 150px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(45deg, #00d4ff, #ff6b35);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+    }
+
+    .loading-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      color: #00d4ff;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .loading-bar {
+      width: 300px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .loading-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #00d4ff, #ff6b35);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .stats {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.8rem;
+      color: #ccc;
+      z-index: 15;
+    }
+
+    .stats strong {
+      color: #00d4ff;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .info-panel {
+        right: 15px;
+        left: 15px;
+        max-width: none;
+      }
+
+      .controls {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .speed-control {
+        right: 15px;
+        bottom: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Pantalla de carga -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-text">CARGANDO SISTEMA SOLAR</div>
+    <div class="loading-bar">
+      <div class="loading-progress" id="loadingProgress"></div>
+    </div>
+  </div>
+
+  <!-- Canvas del sistema solar -->
+  <canvas id="solarSystem"></canvas>
+
+  <!-- Overlay de UI -->
+  <div class="ui-overlay">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">SISTEMA SOLAR 3D</div>
+      <nav class="nav-menu">
+        <button class="nav-btn active" data-view="solar">Sistema Solar</button>
+        <button class="nav-btn" data-view="planets">Planetas</button>
+        <button class="nav-btn" data-view="orbits">Órbitas</button>
+        <button class="nav-btn" data-view="info">Información</button>
+      </nav>
+    </header>
+
+    <!-- Panel de información -->
+    <div class="info-panel" id="infoPanel">
+      <div class="planet-info active" data-planet="sun">
+        <div class="planet-name">SOL</div>
+        <div class="planet-details">
+          <strong>Estrella central</strong><br>
+          Tipo: Enana amarilla<br>
+          Diámetro: 1.392.700 km<br>
+          Temperatura: 5.778 K<br>
+          Masa: 1.989 × 10³⁰ kg
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="mercury">
+        <div class="planet-name">MERCURIO</div>
+        <div class="planet-details">
+          <strong>Planeta más cercano al Sol</strong><br>
+          Distancia: 57.9 millones km<br>
+          Período orbital: 88 días<br>
+          Diámetro: 4.879 km<br>
+          Temperatura: -180°C a 430°C
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="venus">
+        <div class="planet-name">VENUS</div>
+        <div class="planet-details">
+          <strong>Planeta gemelo de la Tierra</strong><br>
+          Distancia: 108.2 millones km<br>
+          Período orbital: 225 días<br>
+          Diámetro: 12.104 km<br>
+          Temperatura: 462°C (superficie)
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="earth">
+        <div class="planet-name">TIERRA</div>
+        <div class="planet-details">
+          <strong>Nuestro hogar</strong><br>
+          Distancia: 149.6 millones km<br>
+          Período orbital: 365.25 días<br>
+          Diámetro: 12.742 km<br>
+          Satélites: 1 (Luna)
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="mars">
+        <div class="planet-name">MARTE</div>
+        <div class="planet-details">
+          <strong>Planeta rojo</strong><br>
+          Distancia: 227.9 millones km<br>
+          Período orbital: 687 días<br>
+          Diámetro: 6.780 km<br>
+          Satélites: 2 (Fobos, Deimos)
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="jupiter">
+        <div class="planet-name">JÚPITER</div>
+        <div class="planet-details">
+          <strong>Planeta más grande</strong><br>
+          Distancia: 778.5 millones km<br>
+          Período orbital: 12 años<br>
+          Diámetro: 139.820 km<br>
+          Satélites: 79 conocidos
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="saturn">
+        <div class="planet-name">SATURNO</div>
+        <div class="planet-details">
+          <strong>Señor de los anillos</strong><br>
+          Distancia: 1.434 millones km<br>
+          Período orbital: 29.5 años<br>
+          Diámetro: 116.460 km<br>
+          Anillos: Sí, muy visibles
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="uranus">
+        <div class="planet-name">URANO</div>
+        <div class="planet-details">
+          <strong>Planeta inclinado</strong><br>
+          Distancia: 2.871 millones km<br>
+          Período orbital: 84 años<br>
+          Diámetro: 50.724 km<br>
+          Inclinación: 97.8°
+        </div>
+      </div>
+
+      <div class="planet-info" data-planet="neptune">
+        <div class="planet-name">NEPTUNO</div>
+        <div class="planet-details">
+          <strong>Planeta más lejano</strong><br>
+          Distancia: 4.495 millones km<br>
+          Período orbital: 165 años<br>
+          Diámetro: 49.244 km<br>
+          Vientos: Hasta 2.100 km/h
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles -->
+    <div class="controls">
+      <button class="control-btn" id="playPauseBtn">
+        <i class="fas fa-play"></i> Pausar
+      </button>
+      <button class="control-btn" id="resetBtn">
+        <i class="fas fa-redo"></i> Reiniciar
+      </button>
+      <button class="control-btn" id="fullscreenBtn">
+        <i class="fas fa-expand"></i> Pantalla Completa
+      </button>
+    </div>
+
+    <!-- Control de velocidad -->
+    <div class="speed-control">
+      <label>Velocidad de Rotación</label>
+      <input type="range" class="speed-slider" id="speedSlider" min="0" max="10" value="5" step="0.1">
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats" id="stats">
+      <div>FPS: <strong id="fps">60</strong></div>
+      <div>Planetas: <strong>8</strong></div>
+      <div>Distancia total: <strong>~5.9 mil millones km</strong></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

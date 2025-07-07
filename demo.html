@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Demo - Sistema Solar 3D</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <style>
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+      padding: 80px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="white" opacity="0.3"/><circle cx="80" cy="40" r="0.5" fill="white" opacity="0.5"/><circle cx="40" cy="80" r="0.8" fill="white" opacity="0.4"/><circle cx="90" cy="90" r="0.3" fill="white" opacity="0.6"/></svg>') repeat;
+      animation: starfield 20s linear infinite;
+    }
+
+    @keyframes starfield {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-100px); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+
+    .title {
+      font-family: 'Orbitron', monospace;
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #00d4ff, #ff6b35, #f7931e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(45deg, #00d4ff, #ff6b35);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .features {
+      padding: 80px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+      margin-top: 60px;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+      border-color: rgba(0, 212, 255, 0.3);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      color: #00d4ff;
+      margin-bottom: 20px;
+    }
+
+    .feature-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #fff;
+    }
+
+    .feature-description {
+      color: #ccc;
+      line-height: 1.6;
+    }
+
+    .planets-showcase {
+      padding: 80px 20px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .planets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .planet-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .planet-card:hover {
+      transform: scale(1.05);
+      border-color: rgba(0, 212, 255, 0.5);
+    }
+
+    .planet-sphere {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .planet-name {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #00d4ff;
+    }
+
+    .planet-info {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .controls-demo {
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 800px;
+      margin: 40px auto 0;
+    }
+
+    .control-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .control-icon {
+      font-size: 2rem;
+      color: #ff6b35;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 40px 20px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .social-link {
+      color: #00d4ff;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+      color: #ff6b35;
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .planets-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="title">SISTEMA SOLAR 3D</h1>
+      <p class="subtitle">
+        Explora el universo desde tu navegador con nuestro sistema solar 3D interactivo. 
+        Gráficos realistas, información detallada y una experiencia inmersiva única.
+      </p>
+      <a href="index.html" class="cta-button">
+        <i class="fas fa-rocket"></i> Explorar Sistema Solar
+      </a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2 style="text-align: center; font-family: 'Orbitron', monospace; font-size: 2.5rem; margin-bottom: 20px; color: #00d4ff;">
+      CARACTERÍSTICAS
+    </h2>
+    <p style="text-align: center; color: #ccc; font-size: 1.1rem; margin-bottom: 40px;">
+      Descubre todas las funcionalidades de nuestro sistema solar 3D
+    </p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-cube"></i>
+        </div>
+        <h3 class="feature-title">Renderizado 3D</h3>
+        <p class="feature-description">
+          Gráficos 3D de alta calidad usando WebGL2 para una experiencia visual inmersiva y realista.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-globe"></i>
+        </div>
+        <h3 class="feature-title">8 Planetas</h3>
+        <p class="feature-description">
+          Todos los planetas del sistema solar con órbitas realistas y información detallada de cada uno.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-gamepad"></i>
+        </div>
+        <h3 class="feature-title">Controles Interactivos</h3>
+        <p class="feature-description">
+          Pausa, reinicia y ajusta la velocidad de rotación con controles intuitivos y responsivos.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-mobile-alt"></i>
+        </div>
+        <h3 class="feature-title">Responsive Design</h3>
+        <p class="feature-description">
+          Optimizado para todos los dispositivos, desde móviles hasta pantallas de escritorio.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-expand"></i>
+        </div>
+        <h3 class="feature-title">Pantalla Completa</h3>
+        <p class="feature-description">
+          Modo inmersivo para una experiencia completa sin distracciones.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 class="feature-title">Estadísticas en Tiempo Real</h3>
+        <p class="feature-description">
+          Monitorea el rendimiento con FPS y estadísticas del sistema en tiempo real.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-palette"></i>
+        </div>
+        <h3 class="feature-title">Colores Identificables</h3>
+        <p class="feature-description">
+          Paleta de colores única y distintiva para cada planeta, facilitando su identificación.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-mouse-pointer"></i>
+        </div>
+        <h3 class="feature-title">Selección Interactiva</h3>
+        <p class="feature-description">
+          Haz clic en cualquier planeta para ver información detallada y características específicas.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Planets Showcase -->
+  <section class="planets-showcase">
+    <h2 style="text-align: center; font-family: 'Orbitron', monospace; font-size: 2.5rem; margin-bottom: 20px; color: #00d4ff;">
+      PLANETAS
+    </h2>
+    <p style="text-align: center; color: #ccc; font-size: 1.1rem; margin-bottom: 40px;">
+      Conoce cada planeta del sistema solar
+    </p>
+    
+         <div class="planets-grid">
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #ffd700, #ff8c00); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);"></div>
+         <h3 class="planet-name">SOL</h3>
+         <p class="planet-info">Estrella central del sistema solar</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🟡 Amarillo Dorado</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #999999, #666666); box-shadow: 0 0 20px rgba(153, 153, 153, 0.6);"></div>
+         <h3 class="planet-name">MERCURIO</h3>
+         <p class="planet-info">Planeta más cercano al Sol</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">⚫ Gris Metálico</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #e6b800, #cc9900); box-shadow: 0 0 20px rgba(230, 184, 0, 0.6);"></div>
+         <h3 class="planet-name">VENUS</h3>
+         <p class="planet-info">Planeta gemelo de la Tierra</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🟠 Naranja Dorado</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #3366cc, #1e90ff); box-shadow: 0 0 20px rgba(51, 102, 204, 0.6);"></div>
+         <h3 class="planet-name">TIERRA</h3>
+         <p class="planet-info">Nuestro hogar en el universo</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🔵 Azul Oceánico</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #cc3333, #990000); box-shadow: 0 0 20px rgba(204, 51, 51, 0.6);"></div>
+         <h3 class="planet-name">MARTE</h3>
+         <p class="planet-info">El planeta rojo</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🔴 Rojo Marciano</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #cc9966, #996633); box-shadow: 0 0 20px rgba(204, 153, 102, 0.6);"></div>
+         <h3 class="planet-name">JÚPITER</h3>
+         <p class="planet-info">El planeta más grande</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🟤 Marrón Jupiteriano</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #e6cc99, #ccaa66); box-shadow: 0 0 20px rgba(230, 204, 153, 0.6);"></div>
+         <h3 class="planet-name">SATURNO</h3>
+         <p class="planet-info">Señor de los anillos</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🟡 Dorado Saturniano</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #66cccc, #4db3b3); box-shadow: 0 0 20px rgba(102, 204, 204, 0.6);"></div>
+         <h3 class="planet-name">URANO</h3>
+         <p class="planet-info">Planeta inclinado</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🔵 Azul Verdoso</div>
+       </div>
+
+       <div class="planet-card">
+         <div class="planet-sphere" style="background: radial-gradient(circle, #3366cc, #1a4d99); box-shadow: 0 0 20px rgba(51, 102, 204, 0.6);"></div>
+         <h3 class="planet-name">NEPTUNO</h3>
+         <p class="planet-info">El planeta más lejano</p>
+         <div style="font-size: 0.8rem; color: #00d4ff; margin-top: 5px;">🔵 Azul Profundo</div>
+       </div>
+     </div>
+  </section>
+
+  <!-- Interactive Features Section -->
+  <section class="interactive-features">
+    <h2 style="text-align: center; font-family: 'Orbitron', monospace; font-size: 2.5rem; margin-bottom: 20px; color: #00d4ff;">
+      FUNCIONALIDADES INTERACTIVAS
+    </h2>
+    <p style="text-align: center; color: #ccc; font-size: 1.1rem; margin-bottom: 40px;">
+      Descubre cómo interactuar con los planetas
+    </p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-hand-pointer"></i>
+        </div>
+        <h3 class="feature-title">Selección de Planetas</h3>
+        <p class="feature-description">
+          Haz clic en cualquier planeta para seleccionarlo y ver información detallada en tiempo real.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-eye"></i>
+        </div>
+        <h3 class="feature-title">Efectos Visuales</h3>
+        <p class="feature-description">
+          Los planetas seleccionados muestran un borde brillante y efectos especiales para destacarlos.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <h3 class="feature-title">Información Detallada</h3>
+        <p class="feature-description">
+          Modal con datos científicos precisos, características físicas y curiosidades de cada planeta.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-palette"></i>
+        </div>
+        <h3 class="feature-title">Paleta de Colores</h3>
+        <p class="feature-description">
+          Cada planeta tiene un color único y distintivo para facilitar su identificación rápida.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Controls Demo -->
+  <section class="controls-demo">
+    <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; margin-bottom: 20px; color: #00d4ff;">
+      CONTROLES
+    </h2>
+    <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 40px;">
+      Interfaz intuitiva para controlar la experiencia
+    </p>
+    
+    <div class="controls-grid">
+      <div class="control-item">
+        <div class="control-icon">
+          <i class="fas fa-play"></i>
+        </div>
+        <h3>Reproducir/Pausar</h3>
+        <p>Controla la animación del sistema</p>
+      </div>
+
+      <div class="control-item">
+        <div class="control-icon">
+          <i class="fas fa-redo"></i>
+        </div>
+        <h3>Reiniciar</h3>
+        <p>Vuelve a la posición inicial</p>
+      </div>
+
+      <div class="control-item">
+        <div class="control-icon">
+          <i class="fas fa-expand"></i>
+        </div>
+        <h3>Pantalla Completa</h3>
+        <p>Modo inmersivo</p>
+      </div>
+
+      <div class="control-item">
+        <div class="control-icon">
+          <i class="fas fa-tachometer-alt"></i>
+        </div>
+        <h3>Velocidad</h3>
+        <p>Ajusta la velocidad de rotación</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <h3 style="font-family: 'Orbitron', monospace; color: #00d4ff; margin-bottom: 10px;">
+        SISTEMA SOLAR 3D
+      </h3>
+      <p style="color: #ccc; margin-bottom: 20px;">
+        Explora el universo desde tu navegador. Una experiencia educativa e interactiva del sistema solar.
+      </p>
+      
+      <div class="social-links">
+        <a href="#" class="social-link">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="#" class="social-link">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="#" class="social-link">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="#" class="social-link">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </div>
+      
+      <p style="color: #888; margin-top: 20px; font-size: 0.9rem;">
+        © 2024 Sistema Solar 3D. Todos los derechos reservados.
+      </p>
+    </div>
+  </footer>
+</body>
+</html> 
